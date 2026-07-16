@@ -1,0 +1,13 @@
+# Drone Hangar
+drone-hangar/.pio
+drone-hangar/.vscode/.browse.c_cpp.db*
+drone-hangar/.vscode/c_cpp_properties.json
+drone-hangar/.vscode/launch.json
+drone-hangar/.vscode/ipch
+drone-hangar/server/node_modules
+
+# Generale
+.DS_Store
+*.swp
+*.swo
+*~
