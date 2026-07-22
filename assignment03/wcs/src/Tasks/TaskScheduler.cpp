@@ -8,7 +8,7 @@ TaskScheduler::TaskScheduler() {
 }
 
 void TaskScheduler::addTask(Task* task) {
-  if (taskCount < MAX_TASKS) return;
+  if (taskCount >= MAX_TASKS) return;
   tasks[taskCount] = task;
   taskCount++;
   Serial.println(taskCount);
