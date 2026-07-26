@@ -1,20 +1,17 @@
-#include "../../include/Sensors/Potentiometer.h"
+#include "Sensors/Potentiometer.h"
 
 Potentiometer::Potentiometer(int pin) {
   this->pin = pin;
   this->lastValue = 0;
 }
 
-void Potentiometer::init() { pinMode(this->pin, INPUT); }
+void Potentiometer::init() { pinMode(pin, INPUT); }
 
 int Potentiometer::readValue() {
-  this->lastValue = analogRead(pin);
+  this->lastValue = analogRead(pin);  // 0-1023
   return lastValue;
 }
 
 int Potentiometer::mapToServoAngle() {
-  int rawValue = readValue();
-  return map(rawValue, 0, 1023, SERVO_MIN_ANGLE, SERVO_MAX_ANGLE);
+  return map(readValue(), 0, 1023, 0, 90);
 }
-
-int Potentiometer::limit(int val) { return constrain(val, 0, 1023); }

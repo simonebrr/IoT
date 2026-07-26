@@ -1,26 +1,24 @@
 #ifndef TASK_H
-#define TASK_h
-
-#include <Arduino.h>
+#define TASK_H
 
 class Task {
  protected:
-  unsigned long lastExecution;
+  unsigned long lastExec;
   unsigned long interval;
-  bool enabled;
+  bool en;
 
  public:
-  Task(unsigned long interval = 1000);
+  Task(unsigned long inteval);
   virtual ~Task();
 
   virtual void init() = 0;
   virtual void execute() = 0;
 
   void run();
-  void setEnable(bool en);
-  bool isEnable();
-  void setInterval(unsigned long ms);
-  unsigned long getInterval();
+  void setEn(bool en) { this->en = en; }
+  bool isEn() { return this->en; }
+  void setInterval(unsigned long ms) { this->interval = ms; }
+  unsigned long getInterval() { return this->interval; }
 };
 
 #endif

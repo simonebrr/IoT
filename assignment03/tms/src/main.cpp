@@ -1,45 +1,30 @@
 #include <Arduino.h>
 
-#include "../include/Protocols/MqttClient.h"
-#include "../include/Sensors/Sonar.h"
-#include "../include/Tasks/MqttPublishTask.h"
-#include "../include/Tasks/TaskScheduler.h"
-#include "config.h"
+#include "../config.h"
+#include "Protocols/MqttClient.h"
+#include "Sensors/Sonar.h"
+#include "Tasks/MonitorTask.h"
+#include "Tasks/TaskScheduler.h"
 
 TaskScheduler scheduler;
 Sonar sonar(SONAR_TRIG, SONAR_ECHO);
-MqttClient mqttClient;
-MqttPublishTask* publishTask;
+MqttClient mqtt;
+MonitorTask* monitorTask;
 
 void setup() {
   Serial.begin(9600);
   delay(1000);
 
-  Serial.println("TMS - Tank Monitoring System");
-
-  pinMode(LED_GREEN, OUTPUT);
-  pinMode(LED_RED, OUTPUT);
-  digitalWrite(LED_GREEN, LOW);
-  digitalWrite(LED_RED, HIGH);
-
   sonar.init();
-  mqttClient.init();
+  mqtt.init();
 
-  publishTask = new MqttPublishTask(PUBLISH_INTERVAL, &mqttClient, &sonar);
-  scheduler.addTask(publishTask);
+  monitorTask = new MonitorTask(SAMPLE_INTERVAL, &sonar, &mqtt);
+  scheduler.addTask(monitorTask);
+  scheduler.initAll();
 }
 
 void loop() {
-  mqttClient.loop();
-  if (mqttClient.isConnected()) {
-    digitalWrite(LED_GREEN, HIGH);
-    digitalWrite(LED_RED, LOW);
-  } else {
-    digitalWrite(LED_GREEN, LOW);
-    digitalWrite(LED_RED, HIGH);
-  }
-
+  mqtt.loop();
   scheduler.runAll();
-
   delay(10);
 }

@@ -1,4 +1,4 @@
-#include "../../include/Protocols/MqttClient.h"
+#include "Protocols/MqttClient.h"
 
 MqttClient::MqttClient() : client(wifiClient) {
   this->connected = false;
@@ -6,68 +6,50 @@ MqttClient::MqttClient() : client(wifiClient) {
 }
 
 void MqttClient::init() {
-  setupWifi();
-
+  setupWiFi();
   client.setServer(MQTT_SERVER, MQTT_PORT);
+}
+
+void MqttClient::setupWiFi() {
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+
+  unsigned long start = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - start < 20000) {
+    delay(500);
+  }
+
   connect();
 }
 
-void MqttClient::setupWifi() {
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
-  int attempts = 0;
-  while (WiFi.status() != WL_CONNECTED && attempts < 20) {
-    delay(500);
-    Serial.print(".");
-    attempts++;
-  }
-
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.println(WiFi.localIP());
-  } else {
-    Serial.println("Connection failed");
-  }
-}
-
 bool MqttClient::connect() {
-  if (client.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASS)) {
+  if (client.connect(MQTT_CLIENT_ID)) {
     this->connected = true;
-    subscribe("tms/control");
     return true;
-  } else {
-    Serial.println(client.state());
-    this->connected = false;
-    return false;
   }
+  this->connected = false;
+  return false;
 }
-
-bool MqttClient::isConnected() { return this->connected; }
 
 void MqttClient::reconnect() {
   unsigned long now = millis();
   if (now - lastReconnectAttempt > 5000) {
     lastReconnectAttempt = now;
-
-    if (WiFi.status() != WL_CONNECTED) {
-      setupWifi();
-    }
-
-    if (WiFi.status() == WL_CONNECTED && !client.connected()) {
+    if (WiFi.status() != WL_CONNECTED)
+      setupWiFi();
+    else
       connect();
-    }
   }
 }
 
-void MqttClient::subscribe(const char* topic) {
+bool MqttClient::isConnected() { return client.connected(); }
+
+void MqttClient::publish(const char* topic, const char* payload) {
   if (client.connected()) {
-    client.subscribe(topic);
-    Serial.println(topic);
+    client.publish(topic, payload);
   }
 }
 
 void MqttClient::loop() {
-  if (!client.connected()) {
-    reconnect();
-  }
+  if (!client.connected()) reconnect();
   client.loop();
 }

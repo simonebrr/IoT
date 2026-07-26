@@ -10,7 +10,6 @@
 class TaskScheduler {
  private:
   Task* tasks[MAX_TASKS];
-
   int taskCount;
 
  public:

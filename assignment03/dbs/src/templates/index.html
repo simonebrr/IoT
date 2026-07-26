@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Smart Tank Dashboard</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+  <h1>Smart Tank Monitoring</h1>
+
+  <div>
+    Stato:
+    <span id="state">---</span>
+  </div>
+
+  <div>
+    Livello acqua:
+    <span id="level">---</span>
+  </div>
+
+  <div>
+    Valvola:
+    <span id="valve">---</span> %
+  </div>
+
+
+  <h2>Modalità</h2>
+
+  <button onclick="setMode('AUTOMATIC')">
+    Automatic
+  </button>
+
+  <button onclick="setMode('MANUAL')">
+    Manual
+  </button>
+
+
+  <h2>Controllo valvola</h2>
+
+  <input type="range" min="0" max="100" id="slider" onchange="setValve(this.value)">
+
+
+  <script src="/static/js/api.js"></script>
+
+</body>
+
+</html>

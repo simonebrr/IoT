@@ -1,18 +1,19 @@
 #include <Arduino.h>
 
-#include "../include/Actuators/LcdDisplay.h"
-#include "../include/Actuators/ServoMotor.h"
-#include "../include/Protocols/SerialProtocol.h"
-#include "../include/Sensors/Button.h"
-#include "../include/Sensors/Potentiometer.h"
-#include "../include/Tasks/ControlTask.h"
-#include "../include/Tasks/TaskScheduler.h"
+#include "Actuators/LcdDisplay.h"
+#include "Actuators/ServoMotor.h"
+#include "Protocols/SerialProtocol.h"
+#include "Sensors/Button.h"
+#include "Sensors/Potentiometer.h"
+#include "Tasks/ControlTask.h"
+#include "Tasks/TaskScheduler.h"
 #include "config.h"
 
 TaskScheduler scheduler;
-ServoMotor servo(SERVO_PIN);
 Potentiometer potentiometer(POTENTIOMETER_PIN);
+ServoMotor servo(SERVO_PIN);
 Button button(BUTTON_PIN);
+LcdDisplay lcd;
 SerialProtocol serialProtocol;
 ControlTask* controlTask;
 
@@ -23,11 +24,12 @@ void setup() {
   servo.init();
   potentiometer.init();
   button.init();
+  lcd.init();
   serialProtocol.init();
-  controlTask = new ControlTask(CONTROL_INTERVAL, &servo, &potentiometer,
-                                &button, &serialProtocol);
-  scheduler.addTask(controlTask);
 
+  controlTask = new ControlTask(CONTROL_INTERVAL, &servo, &potentiometer,
+                                &button, &serialProtocol, &lcd);
+  scheduler.addTask(controlTask);
   scheduler.initAll();
 }
 

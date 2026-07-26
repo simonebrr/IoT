@@ -1,24 +1,17 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
-#include <Arduino.h>
-
-#include "../config.h"
-
 class Button {
- private:
+  static const unsigned long DEBOUNCE_MS = 50;
   int pin;
-  bool lastState;
-  unsigned long lastDebounceTime;
+  bool lastRaw;
+  bool debounced;
+  unsigned long lastChangeTime;
 
  public:
-  Button(int pin = BUTTON_PIN);
-
+  Button(int pin);
   void init();
   bool isPressed();
-  bool wasPressed();
-
- private:
-  bool readRaw();
 };
+
 #endif

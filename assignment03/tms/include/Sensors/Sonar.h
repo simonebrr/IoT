@@ -3,20 +3,19 @@
 
 #include <Arduino.h>
 
-#include "../config.h"
+#include "../../config.h"
 
 class Sonar {
- private:
   int trigPin;
   int echoPin;
   float lastDistance;
 
  public:
-  Sonar(int trigPin = SONAR_TRIG, int echoPin = SONAR_ECHO);
+  Sonar(int trig = SONAR_TRIG, int echo = SONAR_ECHO);
 
   void init();
   float readDistance();
-  float getLastDistance();
+  float getLastDistance() { return this->lastDistance; }
 
  private:
   float calculateDistance(long duration);

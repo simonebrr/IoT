@@ -1,4 +1,4 @@
-#include "../../include/Tasks/TaskScheduler.h"
+#include "Tasks/TaskScheduler.h"
 
 TaskScheduler::TaskScheduler() {
   this->taskCount = 0;
@@ -11,7 +11,6 @@ void TaskScheduler::addTask(Task* task) {
   if (taskCount >= MAX_TASKS) return;
   tasks[taskCount] = task;
   taskCount++;
-  Serial.println(taskCount);
 }
 
 void TaskScheduler::removeTask(Task* task) {
@@ -27,24 +26,18 @@ void TaskScheduler::removeTask(Task* task) {
 
 void TaskScheduler::initAll() {
   for (int i = 0; i < taskCount; i++) {
-    if (tasks[i]) {
-      tasks[i]->init();
-    }
+    if (tasks[i]) tasks[i]->init();
   }
 }
 
 void TaskScheduler::runAll() {
   for (int i = 0; i < taskCount; i++) {
-    if (tasks[i]) {
-      tasks[i]->run();
-    }
+    if (tasks[i]) tasks[i]->run();
   }
 }
 
-void TaskScheduler::runAll() {
+void TaskScheduler::stopAll() {
   for (int i = 0; i < taskCount; i++) {
-    if (tasks[i]) {
-      tasks[i]->setEnable(false);
-    }
+    if (tasks[i]) tasks[i]->setEn(false);
   }
 }

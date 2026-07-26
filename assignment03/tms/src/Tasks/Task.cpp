@@ -1,27 +1,20 @@
-#include "../../include/Tasks/Task.h"
+#include "Tasks/Task.h"
+
+#include <Arduino.h>
 
 Task::Task(unsigned long interval) {
   this->interval = interval;
-  this->lastExecution = 0;
-  this->enabled = true;
+  this->lastExec = 0;
+  this->en = true;
 }
-
-Task::~Task() {}
 
 void Task::run() {
-  if (!enabled) return;
+  if (!en) return;
 
   unsigned long now = millis();
-  if (now - lastExecution >= interval) {
+
+  if (now - lastExec >= interval) {
     execute();
-    lastExecution = now;
+    lastExec = now;
   }
 }
-
-void Task::setEnable(bool en) { this->enabled = en; }
-
-bool Task::isEnable() { return this->enabled; }
-
-void Task::setInterval(unsigned long ms) { this->interval = ms; }
-
-unsigned long Task::getInterval() { return this->interval; }

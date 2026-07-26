@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Drone Remote Unit</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      background: #0f172a;
+      color: #e2e8f0;
+      display: flex;
+      justify-content: center;
+      padding: 24px;
+    }
+    .app { width: 100%; max-width: 560px; }
+    h1 { font-size: 1.4rem; margin: 0 0 4px; }
+    .conn { font-size: .85rem; margin-bottom: 20px; }
+    .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #64748b; margin-right: 6px; }
+    .dot.ok { background: #22c55e; }
+    .dot.ko { background: #ef4444; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .card { background: #1e293b; border-radius: 10px; padding: 16px; }
+    .card .label { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: #94a3b8; }
+    .card .value { font-size: 1.5rem; font-weight: 600; margin-top: 6px; }
+    .card.wide { grid-column: 1 / -1; }
+    .status-normal { color: #22c55e; }
+    .status-prealarm { color: #f59e0b; }
+    .status-alarm { color: #ef4444; }
+    .dist.landing { color: #38bdf8; }
+    .buttons { display: flex; gap: 12px; }
+    button {
+      flex: 1; padding: 16px; font-size: 1rem; font-weight: 600;
+      border: none; border-radius: 10px; cursor: pointer; color: #fff;
+    }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    .takeoff { background: #2563eb; }
+    .land { background: #0891b2; }
+    .banner {
+      display: none; background: #7f1d1d; color: #fecaca; padding: 12px;
+      border-radius: 10px; margin-bottom: 16px; font-weight: 600; text-align: center;
+    }
+    .banner.show { display: block; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>Drone Remote Unit</h1>
+    <div class="conn"><span id="dot" class="dot"></span><span id="conn-text">Connecting…</span></div>
+
+    <div id="alarm-banner" class="banner">⚠ ALARM received from hangar</div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="label">Drone state</div>
+        <div class="value" id="drone-state">—</div>
+      </div>
+      <div class="card">
+        <div class="label">Hangar</div>
+        <div class="value" id="hangar-state">—</div>
+      </div>
+      <div class="card wide">
+        <div class="label">Distance to ground</div>
+        <div class="value dist" id="distance">—</div>
+      </div>
+      <div class="card wide">
+        <div class="label">Temperature</div>
+        <div class="value" id="temperature">—</div>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button class="takeoff" id="btn-takeoff">Take off</button>
+      <button class="land" id="btn-land">Landing</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    const dot = document.getElementById('dot');
+    const connText = document.getElementById('conn-text');
+    const droneState = document.getElementById('drone-state');
+    const hangarState = document.getElementById('hangar-state');
+    const distance = document.getElementById('distance');
+    const temperature = document.getElementById('temperature');
+    const alarmBanner = document.getElementById('alarm-banner');
+    const btnTakeoff = document.getElementById('btn-takeoff');
+    const btnLand = document.getElementById('btn-land');
+
+    // Map hangar FSM state -> drone state shown to the operator.
+    const DRONE_STATE = {
+      DRONE_INSIDE: 'Rest',
+      TAKE_OFF: 'Taking off',
+      DRONE_OUTSIDE: 'Operating',
+      LANDING: 'Landing',
+      ALARM: '—'
+    };
+
+    function setConn(ok, text) {
+      dot.className = 'dot ' + (ok ? 'ok' : 'ko');
+      connText.textContent = text;
+    }
+
+    socket.on('connect', () => setConn(false, 'Web connected, waiting for hangar…'));
+    socket.on('hangar:connected', () => setConn(true, 'Hangar connected'));
+    socket.on('hangar:disconnected', () => setConn(false, 'Hangar disconnected'));
+    socket.on('hangar:error', (e) => setConn(false, 'Serial error: ' + e.error));
+
+    socket.on('hangar:telemetry', (t) => {
+      droneState.textContent = DRONE_STATE[t.state] || t.state;
+
+      const hs = (t.hangar || '').toLowerCase();
+      hangarState.textContent = t.hangar;
+      hangarState.className = 'value status-' + (hs === 'alarm' ? 'alarm' : hs === 'prealarm' ? 'prealarm' : 'normal');
+
+      alarmBanner.classList.toggle('show', t.hangar === 'ALARM');
+
+      if (t.distance !== null && !isNaN(t.distance)) {
+        distance.textContent = t.distance.toFixed(1) + ' cm';
+      } else {
+        distance.textContent = '—';
+      }
+      // Highlight the distance while landing (relevant phase).
+      distance.classList.toggle('landing', t.state === 'LANDING');
+
+      if (t.temperature !== null && !isNaN(t.temperature)) {
+        temperature.textContent = t.temperature.toFixed(1) + ' °C';
+      }
+
+      // Commands only make sense from the matching state.
+      btnTakeoff.disabled = t.state !== 'DRONE_INSIDE';
+      btnLand.disabled = t.state !== 'DRONE_OUTSIDE';
+    });
+
+    btnTakeoff.addEventListener('click', () => socket.emit('drone:takeoff'));
+    btnLand.addEventListener('click', () => socket.emit('drone:land'));
+  </script>
+</body>
+</html>

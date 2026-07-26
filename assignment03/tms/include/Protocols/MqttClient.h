@@ -2,13 +2,11 @@
 #define MQTT_CLIENT_H
 
 #include <Arduino.h>
+#include <ESP8266WiFi.h>
 #include <PubSubClient.h>
-#include <WiFi.h>
-
-#include "../config.h"
+#include "../../config.h"
 
 class MqttClient {
- private:
   WiFiClient wifiClient;
   PubSubClient client;
   bool connected;
@@ -18,16 +16,14 @@ class MqttClient {
   MqttClient();
 
   void init();
-  bool connect();
-  bool isConnected();
-  void reconnect();
-  void publish(const char* topic, const char* payload);
-  void subscribe(const char* topic);
   void loop();
+  bool isConnected();
+  void publish(const char* topic, const char* payload);
 
  private:
-  void setupWifi();
-  void onMessageReceived(char* topic, byte* payload, unsigned long lenght);
+  void setupWiFi();
+  bool connect();
+  void reconnect();
 };
 
 #endif

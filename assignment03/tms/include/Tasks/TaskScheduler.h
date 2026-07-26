@@ -1,3 +1,4 @@
+
 #ifndef TASK_SCHEDULER_H
 #define TASK_SCHEDULER_H
 
@@ -8,7 +9,6 @@
 #define MAX_TASKS 3
 
 class TaskScheduler {
- private:
   Task* tasks[MAX_TASKS];
   int taskCount;
 

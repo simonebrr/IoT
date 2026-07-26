@@ -1,9 +1,9 @@
-#include "../../include/Protocols/SerialProtocol.h"
+#include "Protocols/SerialProtocol.h"
 
 SerialProtocol::SerialProtocol() {
   this->bufferIndex = 0;
-  this->messageReady = false;
-  clearBuffer();
+  this->msgReady = false;
+  memset(buffer, 0, BUFFER_SIZE);
 }
 
 void SerialProtocol::init() { Serial.begin(SERIAL_BAUD); }
@@ -14,39 +14,30 @@ void SerialProtocol::update() {
 
     if (c == '\n') {
       buffer[bufferIndex] = '\0';
+      msgReady = true;
       bufferIndex = 0;
-      messageReady = true;
     } else if (bufferIndex < BUFFER_SIZE - 1) {
-      buffer[bufferIndex] = c;
-      bufferIndex++;
+      buffer[bufferIndex++] = c;
     }
   }
 }
 
-bool SerialProtocol::isMessageReady() { return this->messageReady; }
+bool SerialProtocol::isMsgReady() { return this->msgReady; }
 
-char* SerialProtocol::getCommand() {
-  this->messageReady = false;
+char* SerialProtocol::getCmd() {
+  this->msgReady = false;
   return this->buffer;
 }
 
-void SerialProtocol::sendResponse(const char* response) {
-  Serial.println(response);
-}
-
-void SerialProtocol::sendSensorData(float pot, bool button) {
+void SerialProtocol::sendStatus(int mode, int valvePercent) {
   char payload[64];
-  snprintf(payload, sizeof(payload), "SENSOR:%.2f:%d", pot, button ? 1 : 0);
-  Serial.println(payload);
+  snprintf(payload, sizeof(payload), "STATUS:%d:%d\n", mode, valvePercent);
+  Serial.print(payload);
 }
 
-void SerialProtocol::sendStatus(int mode, int servoAngle) {
+void SerialProtocol::sendSensorData(int potValue, bool btnPressed) {
   char payload[64];
-  snprintf(payload, sizeof(payload), "STATUS:%d:%d", mode, servoAngle);
-  Serial.println(payload);
-}
-
-void SerialProtocol::clearBuffer() {
-  memset(buffer, 0, BUFFER_SIZE);
-  bufferIndex = 0;
+  snprintf(payload, sizeof(payload), "SENSOR:%d:%d\n", potValue,
+           btnPressed ? 1 : 0);
+  Serial.print(payload);
 }

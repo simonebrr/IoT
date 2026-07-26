@@ -1,5 +1,5 @@
-#ifndef WCS_CONFIG_H
-#define WCS_CONFIG_H
+#ifndef CONFIG_H
+#define CONFIG_H
 
 #define SERIAL_BAUD 9600
 #define SERIAL_TIMEOUT 1000  // ms
@@ -16,6 +16,7 @@
 
 #define CONTROL_INTERVAL 500  // ms
 #define BUTTON_DEBOUNCE 50    // ms
+#define POT_DEADBAND 15       // raw ADC counts: min movement to take over the valve
 
 #define SERVO_MIN_ANGLE 0
 #define SERVO_MAX_ANGLE 90

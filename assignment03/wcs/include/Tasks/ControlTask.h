@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 
+#include "../Actuators/LcdDisplay.h"
 #include "../Actuators/ServoMotor.h"
 #include "../Protocols/SerialProtocol.h"
 #include "../Sensors/Button.h"
@@ -16,13 +17,17 @@ class ControlTask : public Task {
   Potentiometer* potentiometer;
   Button* button;
   SerialProtocol* serialProtocol;
+  LcdDisplay* lcd;
 
   int currentMode;
   int targetAngle;
+  int lastPotRaw;
+  bool lastPressed;
 
  public:
   ControlTask(unsigned long interval, ServoMotor* servoMotor,
-              Potentiometer* pot, Button* btn, SerialProtocol* serial);
+              Potentiometer* pot, Button* btn, SerialProtocol* serial,
+              LcdDisplay* display);
 
   void init() override;
   void execute() override;

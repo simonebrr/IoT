@@ -1,32 +1,27 @@
-#include "../../include/Sensors/Button.h"
+#include "Sensors/Button.h"
 
-Button::Button(int buttonPin) {
-  this->pin = buttonPin;
-  this->lastState = LOW;
-  this->lastDebounceTime = 0;
+#include <Arduino.h>
+
+Button::Button(int pin) {
+  this->pin = pin;
+  this->lastRaw = HIGH;
+  this->debounced = HIGH;
+  this->lastChangeTime = 0;
 }
 
 void Button::init() { pinMode(pin, INPUT_PULLUP); }
 
 bool Button::isPressed() {
-  bool currentState = readRaw();
+  bool raw = digitalRead(pin);
 
-  if (currentState != lastState) {
-    lastDebounceTime = millis();
+  if (raw != lastRaw) {
+    lastChangeTime = millis();
+    lastRaw = raw;
   }
-  if ((millis() - lastDebounceTime) > BUTTON_DEBOUNCE) {
-    lastState = currentState;
+
+  if ((millis() - lastChangeTime) > DEBOUNCE_MS) {
+    debounced = lastRaw;
   }
-  return (lastState == LOW);
+
+  return (debounced == LOW);  // LOW = premuto (pullup)
 }
-
-bool Button::wasPressed() {
-  bool pressed = isPressed();
-  if (pressed) {
-    delay(50);
-    return !isPressed();
-  }
-  return false;
-}
-
-bool Button::readRaw() { return digitalRead(pin); }

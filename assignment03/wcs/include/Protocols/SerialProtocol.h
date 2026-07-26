@@ -11,23 +11,23 @@ class SerialProtocol {
  private:
   char buffer[BUFFER_SIZE];
   int bufferIndex;
-  bool messageReady;
+  bool msgReady;
 
  public:
   SerialProtocol();
 
   void init();
   void update();
-  bool isMessageReady();
-  char* getCommand();
+  bool isMsgReady();
+  char* getCmd();
 
   void sendResponse(const char* response);
-  void sendSensorData(float pot, bool button);
+  void sendSensorData(int pot, bool button);
   void sendStatus(int mode, int servoAngle);
 
  private:
   void parseMessage();
-  void clearBuffer();
+  void clsBuffer();
 };
 
 #endif

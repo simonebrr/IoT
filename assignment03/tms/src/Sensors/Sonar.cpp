@@ -1,9 +1,9 @@
-#include "../../include/Sensors/Sonar.h"
+#include "Sensors/Sonar.h"
 
 Sonar::Sonar(int trig, int echo) {
   this->trigPin = trig;
   this->echoPin = echo;
-  this->lastDistance = 0.0;
+  this->lastDistance = 0.0f;
 }
 
 void Sonar::init() {
@@ -19,9 +19,8 @@ float Sonar::readDistance() {
   digitalWrite(trigPin, LOW);
 
   long duration = pulseIn(echoPin, HIGH, 30000);
-  if (duration == 0) {
-    return lastDistance;
-  }
+  if (duration == 0) return lastDistance;
+
   lastDistance = calculateDistance(duration);
   return lastDistance;
 }
