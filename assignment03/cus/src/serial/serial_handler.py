@@ -1,7 +1,8 @@
 import serial
 import threading
-from core.state_machine import StateMachine
+from core.state_machine import StateMachine, AUTOMATIC, MANUAL
 
+WCS_MODE = {0: MANUAL, 1: AUTOMATIC}
 
 class SerialHandler:
   def __init__(self, state_machine: StateMachine, port: str, baud: int = 9600):
@@ -18,7 +19,6 @@ class SerialHandler:
     self.thread = threading.Thread(target=self._read_loop)
     self.thread.daemon = True
     self.thread.start()
-    print(f"[Serial] Connected on {self.port}")
 
   def stop(self):
     self.running = False
@@ -53,6 +53,12 @@ class SerialHandler:
     if line.startswith("STATUS:"):
       parts = line.split(":")
       if len(parts) == 3:
-        mode = int(parts[1])
-        valve = int (parts[2])
-        print(f"[Serial] Mode={mode} Valve={valve}%")
+        try: 
+          mode_raw = int(parts[1])
+          valve = int (parts[2])
+        except Exception:
+          return
+        mode = WCS_MODE.get(mode_raw)
+        if mode is not None:
+          self.state_machine.on_wcs_report(mode, valve)
+          print(f"[Serial] Mode={mode} Valve={valve}%")

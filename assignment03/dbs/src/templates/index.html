@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 
 <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Smart Tank Dashboard</title>
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
@@ -10,39 +12,39 @@
 
   <h1>Smart Tank Monitoring</h1>
 
-  <div>
-    Stato:
-    <span id="state">---</span>
+  <div class="cards">
+    <div class="card">
+      <div class="label">Stato</div>
+      <div class="value"><span id="state" class="badge">---</span></div>
+    </div>
+    <div class="card">
+      <div class="label">Livello acqua</div>
+      <div class="value"><span id="level">---</span> %</div>
+    </div>
+    <div class="card">
+      <div class="label">Valvola</div>
+      <div class="value"><span id="valve">---</span> %</div>
+    </div>
   </div>
 
-  <div>
-    Livello acqua:
-    <span id="level">---</span>
-  </div>
-
-  <div>
-    Valvola:
-    <span id="valve">---</span> %
-  </div>
-
+  <h2>Livello (ultime misure)</h2>
+  <canvas id="chart" width="600" height="220"></canvas>
 
   <h2>Modalità</h2>
+  <div class="controls">
+    <button id="btn-auto" onclick="setMode('AUTOMATIC')">Automatic</button>
+    <button id="btn-manual" onclick="setMode('MANUAL')">Manual</button>
+  </div>
 
-  <button onclick="setMode('AUTOMATIC')">
-    Automatic
-  </button>
+  <h2>Controllo valvola (solo in MANUAL)</h2>
+  <div class="controls">
+    <input type="range" min="0" max="100" id="slider" value="0" oninput="onSliderInput(this.value)"
+      onchange="setValve(this.value)">
+    <span id="slider-value">0</span> %
+  </div>
 
-  <button onclick="setMode('MANUAL')">
-    Manual
-  </button>
-
-
-  <h2>Controllo valvola</h2>
-
-  <input type="range" min="0" max="100" id="slider" onchange="setValve(this.value)">
-
-
-  <script src="/static/js/api.js"></script>
+  <script src="/static/js/chart.js"></script>
+  <script src="/static/js/dashboard.js"></script>
 
 </body>
 

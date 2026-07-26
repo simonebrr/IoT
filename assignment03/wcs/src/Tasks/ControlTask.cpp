@@ -18,25 +18,31 @@ ControlTask::ControlTask(unsigned long interval, ServoMotor* servoMotor,
 void ControlTask::init() {}
 
 void ControlTask::execute() {
-  // Controlla bottone - toggle modalità
+  serialProtocol->update();
+  if (serialProtocol->isMsgReady()) {
+    char* cmd = serialProtocol->getCmd();
+    char* colon = strchr(cmd, ':');
+    if (colon != nullptr) {
+      *colon = '\0';
+      targetAngle = atoi(colon + 1);
+      if (strcmp(cmd, "AUTOMATIC") == 0) {
+        currentMode = MODE_AUTOMATIC;
+
+      } else if (strcmp(cmd, "MANUAL") == 0) {
+        currentMode = MODE_MANUAL;
+      } else if (strcmp(cmd, "UNCONNECTED") == 0) {
+        currentMode = MODE_UNCONNECTED;
+      }
+    }
+  }
+
+  // Prioritá bottone
   bool pressed = button->isPressed();
   if (pressed && !lastPressed) {
     currentMode = (currentMode == MODE_MANUAL) ? MODE_AUTOMATIC : MODE_MANUAL;
   }
   lastPressed = pressed;
 
-  // Leggi comandi dal CUS
-  serialProtocol->update();
-  if (serialProtocol->isMsgReady()) {
-    char* cmd = serialProtocol->getCmd();
-    if (strcmp(cmd, "AUTOMATIC") == 0) {
-      currentMode = MODE_AUTOMATIC;
-    } else if (strcmp(cmd, "UNCONNECTED") == 0) {
-      currentMode = MODE_UNCONNECTED;
-    } else if (strncmp(cmd, "ANGLE:", 6) == 0) {
-      targetAngle = atoi(cmd + 6);
-    }
-  }
   if (currentMode == MODE_MANUAL) {
     handleManualMode();
   } else {
@@ -46,7 +52,6 @@ void ControlTask::execute() {
   updateServo();
   sendStatusUpdate();
 }
-
 void ControlTask::handleManualMode() {
   targetAngle = potentiometer->mapToServoAngle();
 }
