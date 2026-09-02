@@ -25,7 +25,6 @@ bool ControlTask::operationsAllowed() {
   return !tempMonitor->isPreAlarm() && !tempMonitor->isAlarm();
 }
 
-
 void ControlTask::changeState(HangarState newState) {
   state = newState;
   resetTimer();
@@ -101,7 +100,7 @@ void ControlTask::tick() {
       break;
 
     case HANGAR_ALARM:
-      if (resetButton->isPressed()) {
+      if (resetButton->isPressed() || resetRequested) {
         tempMonitor->reset();
         l3->switchOff();
         changeState(droneInside ? DRONE_INSIDE : DRONE_OUTSIDE);
@@ -111,6 +110,7 @@ void ControlTask::tick() {
 
   takeoffRequested = false;
   landRequested = false;
+  resetRequested = false;
 }
 
 const char* ControlTask::getStateName() {

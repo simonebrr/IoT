@@ -2,7 +2,7 @@
 #define CONFIG_H
 
 #define SERIAL_BAUD 9600
-#define SERIAL_TIMEOUT 1000  // ms
+#define SERIAL_TIMEOUT 1000
 
 #define SERVO_PIN 9
 #define POTENTIOMETER_PIN A0
@@ -14,8 +14,8 @@
 #define LCD_D6 7
 #define LCD_D7 6
 
-#define CONTROL_INTERVAL 500  // ms
-#define BUTTON_DEBOUNCE 50    // ms
+#define CONTROL_INTERVAL 500
+#define BUTTON_DEBOUNCE 50
 #define POT_DEADBAND 15       // raw ADC counts: min movement to take over the valve
 
 #define SERVO_MIN_ANGLE 0

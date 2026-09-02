@@ -15,7 +15,6 @@ SerialTask::SerialTask(ControlTask* control, SensorTask* sensors,
 }
 
 void SerialTask::tick() {
-
   while (Serial.available() > 0) {
     char c = (char)Serial.read();
     if (c == '\n') {
@@ -33,7 +32,7 @@ void SerialTask::tick() {
     SerialProtocol::sendTelemetry(
         control->getStateName(), sensors->getTemperature(),
         sensors->getDistance(), tempMonitor->isPreAlarm(),
-        tempMonitor->isAlarm());
+        tempMonitor->isAlarm(), sensors->isDronePresent());
   }
 }
 
@@ -42,5 +41,7 @@ void SerialTask::processLine(const char* line) {
     control->requestTakeoff();
   } else if (SerialProtocol::isCommand(line, SerialProtocol::CMD_LAND)) {
     control->requestLand();
+  } else if (SerialProtocol::isCommand(line, SerialProtocol::CMD_RESET)) {
+    control->requestReset();
   }
 }

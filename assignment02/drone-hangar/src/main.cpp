@@ -37,6 +37,7 @@ void setup() {
   Serial.begin(SERIAL_BAUD);
   door.init();
   lcd.init();
+  tempSensor.init();
 
   scheduler.init(10);
 

@@ -5,9 +5,9 @@ Sistema a due sottosistemi che comunicano via **seriale**:
 - `drone-remote-unit/` — DRU, GUI web PC (Node.js + socket.io)
 
 ## Da allegare
-- **Diagramma FSM**: _TODO_ (esporta qui, es. `fsm.png`)
-- **Schema circuito** (TinkerCad/Fritzing): _TODO_
-- **Video dimostrativo**: _TODO — link OneDrive UNIBO_
+- **Diagramma FSM**: fatto
+- **Schema circuito** (TinkerCad/Fritzing): fatto
+- **Video dimostrativo**: fatto
 
 ## Architettura Arduino (task-based + FSM sincrone)
 Scheduler cooperativo a base-period; ogni task riceve solo ciò che gli serve:

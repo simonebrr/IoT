@@ -49,6 +49,7 @@ class ControlTask : public Task {
   bool droneInside;  // dove tornare quando l'allarme viene resettato
   bool takeoffRequested;
   bool landRequested;
+  bool resetRequested;
 
   void changeState(HangarState newState);
   bool operationsAllowed();
@@ -64,6 +65,7 @@ class ControlTask : public Task {
   /* chiamate dal SerialTask quando arriva un comando dal PC */
   void requestTakeoff() { takeoffRequested = true; }
   void requestLand() { landRequested = true; }
+  void requestReset() { resetRequested = true; };
 
   const char* getStateName();
 };

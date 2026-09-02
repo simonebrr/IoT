@@ -26,13 +26,13 @@
 #define COMM_TASK_INTERVAL 100
 #define BLINK_PERIOD_MS 250
 
-#define D1 50.0     // Drone considered outside
+#define D1 20.0     // Drone considered outside
 #define T1 3000
 #define D2 10.0     // Drone considered landed
 #define T2 3000
-#define TEMP1 30.0  // Pre-alarm threshold
+#define TEMP1 29.5 // Pre-alarm threshold
 #define T3 3000
-#define TEMP2 40.0  // Alarm threshold
+#define TEMP2 30.0  // Alarm threshold
 #define T4 2000
 
 

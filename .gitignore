@@ -1,13 +1,22 @@
-# Drone Hangar
-drone-hangar/.pio
+
+.vscode/.browse.c_cpp.db*
+.vscode/c_cpp_properties.json
+.vscode/launch.json
+.vscode/ipch/
 drone-hangar/.vscode/.browse.c_cpp.db*
 drone-hangar/.vscode/c_cpp_properties.json
 drone-hangar/.vscode/launch.json
-drone-hangar/.vscode/ipch
-drone-hangar/server/node_modules
+drone-hangar/.vscode/ipch/
+assignment02/doc/assignment02.mp4
 
-# Generale
+.pio/
+drone-hangar/.pio/
+**/pio/
+**/.pio/
+
+
+node_modules/
+**/node_modules/
+
+*.log
 .DS_Store
-*.swp
-*.swo
-*~

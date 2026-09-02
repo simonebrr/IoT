@@ -1,143 +1,257 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Drone Remote Unit</title>
   <style>
-    * { box-sizing: border-box; }
     body {
       font-family: system-ui, sans-serif;
-      margin: 0;
-      background: #0f172a;
-      color: #e2e8f0;
-      display: flex;
-      justify-content: center;
-      padding: 24px;
+      max-width: 620px;
+      margin: 0 auto;
+      padding: 20px;
     }
-    .app { width: 100%; max-width: 560px; }
-    h1 { font-size: 1.4rem; margin: 0 0 4px; }
-    .conn { font-size: .85rem; margin-bottom: 20px; }
-    .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #64748b; margin-right: 6px; }
-    .dot.ok { background: #22c55e; }
-    .dot.ko { background: #ef4444; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-    .card { background: #1e293b; border-radius: 10px; padding: 16px; }
-    .card .label { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: #94a3b8; }
-    .card .value { font-size: 1.5rem; font-weight: 600; margin-top: 6px; }
-    .card.wide { grid-column: 1 / -1; }
-    .status-normal { color: #22c55e; }
-    .status-prealarm { color: #f59e0b; }
-    .status-alarm { color: #ef4444; }
-    .dist.landing { color: #38bdf8; }
-    .buttons { display: flex; gap: 12px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 6px 8px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      width: 45%;
+      font-weight: normal;
+      color: #555;
+    }
+
+    td {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .alarm {
+      color: #c00;
+      font-weight: bold;
+    }
+
+    .prealarm {
+      color: #b45309;
+    }
+
+    .muted {
+      color: #999;
+    }
+
     button {
-      flex: 1; padding: 16px; font-size: 1rem; font-weight: 600;
-      border: none; border-radius: 10px; cursor: pointer; color: #fff;
+      padding: 10px 16px;
+      margin: 12px 6px 0 0;
     }
-    button:disabled { opacity: .5; cursor: not-allowed; }
-    .takeoff { background: #2563eb; }
-    .land { background: #0891b2; }
-    .banner {
-      display: none; background: #7f1d1d; color: #fecaca; padding: 12px;
-      border-radius: 10px; margin-bottom: 16px; font-weight: 600; text-align: center;
+
+    /* column-reverse: il browser tiene la vista ancorata in basso da solo,
+       quindi non serve leggere scrollHeight per fare autoscroll. */
+    #log {
+      display: flex;
+      flex-direction: column-reverse;
+      height: 150px;
+      overflow-y: auto;
+      margin-top: 12px;
+      padding: 8px;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      word-break: break-all;
     }
-    .banner.show { display: block; }
+
+    #log .bad {
+      color: #f87171;
+    }
   </style>
 </head>
+
 <body>
-  <div class="app">
-    <h1>Drone Remote Unit</h1>
-    <div class="conn"><span id="dot" class="dot"></span><span id="conn-text">Connecting…</span></div>
 
-    <div id="alarm-banner" class="banner">⚠ ALARM received from hangar</div>
+  <h1>Drone Remote Unit</h1>
+  <p id="conn">Connessione…</p>
 
-    <div class="grid">
-      <div class="card">
-        <div class="label">Drone state</div>
-        <div class="value" id="drone-state">—</div>
-      </div>
-      <div class="card">
-        <div class="label">Hangar</div>
-        <div class="value" id="hangar-state">—</div>
-      </div>
-      <div class="card wide">
-        <div class="label">Distance to ground</div>
-        <div class="value dist" id="distance">—</div>
-      </div>
-      <div class="card wide">
-        <div class="label">Temperature</div>
-        <div class="value" id="temperature">—</div>
-      </div>
-    </div>
+  <table>
+    <tr>
+      <th>Stato drone</th>
+      <td id="drone-state">—</td>
+    </tr>
+    <tr>
+      <th>Stato FSM</th>
+      <td id="fsm-state">—</td>
+    </tr>
+    <tr>
+      <th>Stato hangar</th>
+      <td id="hangar-state">—</td>
+    </tr>
+    <tr>
+      <th>Distanza</th>
+      <td id="distance">—</td>
+    </tr>
+    <tr>
+      <th>Temperatura</th>
+      <td id="temperature">—</td>
+    </tr>
+    <tr>
+      <th>PIR</th>
+      <td id="pir">—</td>
+    </tr>
+    <tr>
+      <th>Pre-allarme</th>
+      <td id="prealarm">—</td>
+    </tr>
+    <tr>
+      <th>Allarme</th>
+      <td id="alarm">—</td>
+    </tr>
+    <tr>
+      <th>Ultimo frame</th>
+      <td id="age">—</td>
+    </tr>
+    <tr>
+      <th>Frame ricevuti</th>
+      <td id="count">0</td>
+    </tr>
+  </table>
 
-    <div class="buttons">
-      <button class="takeoff" id="btn-takeoff">Take off</button>
-      <button class="land" id="btn-land">Landing</button>
-    </div>
+  <div>
+    <button id="btn-takeoff" disabled>Decolla</button>
+    <button id="btn-land" disabled>Atterra</button>
+    <button id="btn-reset" disabled>Reset allarme</button>
   </div>
+
+  <div id="log"></div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
-    const socket = io();
+    (() => {
+      'use strict';
 
-    const dot = document.getElementById('dot');
-    const connText = document.getElementById('conn-text');
-    const droneState = document.getElementById('drone-state');
-    const hangarState = document.getElementById('hangar-state');
-    const distance = document.getElementById('distance');
-    const temperature = document.getElementById('temperature');
-    const alarmBanner = document.getElementById('alarm-banner');
-    const btnTakeoff = document.getElementById('btn-takeoff');
-    const btnLand = document.getElementById('btn-land');
+      const TEMP1 = 30.0, TEMP2 = 40.0;
+      const socket = io({ transports: ['websocket'], upgrade: false });
+      const $ = id => document.getElementById(id);
 
-    // Map hangar FSM state -> drone state shown to the operator.
-    const DRONE_STATE = {
-      DRONE_INSIDE: 'Rest',
-      TAKE_OFF: 'Taking off',
-      DRONE_OUTSIDE: 'Operating',
-      LANDING: 'Landing',
-      ALARM: '—'
-    };
+      const DRONE_STATE = {
+        DRONE_INSIDE: 'Fermo',
+        TAKE_OFF: 'In decollo',
+        DRONE_OUTSIDE: 'In volo',
+        LANDING: 'In atterraggio',
+        ALARM: 'Bloccato'
+      };
 
-    function setConn(ok, text) {
-      dot.className = 'dot ' + (ok ? 'ok' : 'ko');
-      connText.textContent = text;
-    }
+      let frames = 0, lastFrameAt = 0;
+      let pending = null, scheduled = false, logBuf = [];
 
-    socket.on('connect', () => setConn(false, 'Web connected, waiting for hangar…'));
-    socket.on('hangar:connected', () => setConn(true, 'Hangar connected'));
-    socket.on('hangar:disconnected', () => setConn(false, 'Hangar disconnected'));
-    socket.on('hangar:error', (e) => setConn(false, 'Serial error: ' + e.error));
+      const set = (id, text, cls) => {
+        const el = $(id);
+        el.textContent = text;
+        el.className = cls || '';
+      };
 
-    socket.on('hangar:telemetry', (t) => {
-      droneState.textContent = DRONE_STATE[t.state] || t.state;
-
-      const hs = (t.hangar || '').toLowerCase();
-      hangarState.textContent = t.hangar;
-      hangarState.className = 'value status-' + (hs === 'alarm' ? 'alarm' : hs === 'prealarm' ? 'prealarm' : 'normal');
-
-      alarmBanner.classList.toggle('show', t.hangar === 'ALARM');
-
-      if (t.distance !== null && !isNaN(t.distance)) {
-        distance.textContent = t.distance.toFixed(1) + ' cm';
-      } else {
-        distance.textContent = '—';
-      }
-      // Highlight the distance while landing (relevant phase).
-      distance.classList.toggle('landing', t.state === 'LANDING');
-
-      if (t.temperature !== null && !isNaN(t.temperature)) {
-        temperature.textContent = t.temperature.toFixed(1) + ' °C';
+      function log(text, bad) {
+        logBuf.push({ text: new Date().toLocaleTimeString('it-IT') + '  ' + text, bad });
+        schedule();
       }
 
-      // Commands only make sense from the matching state.
-      btnTakeoff.disabled = t.state !== 'DRONE_INSIDE';
-      btnLand.disabled = t.state !== 'DRONE_OUTSIDE';
-    });
+      function schedule() {
+        if (scheduled) return;
+        scheduled = true;
+        requestAnimationFrame(draw);
+      }
 
-    btnTakeoff.addEventListener('click', () => socket.emit('drone:takeoff'));
-    btnLand.addEventListener('click', () => socket.emit('drone:land'));
+      // Un solo disegno per frame video, non uno per pacchetto ricevuto.
+      function draw() {
+        scheduled = false;
+        if (pending) { render(pending); pending = null; }
+        flushLog();
+      }
+
+      function flushLog() {
+        if (!logBuf.length) return;
+        const box = $('log'), frag = document.createDocumentFragment();
+        for (let i = logBuf.length - 1; i >= 0; i--) {
+          const d = document.createElement('div');
+          if (logBuf[i].bad) d.className = 'bad';
+          d.textContent = logBuf[i].text;
+          frag.appendChild(d);
+        }
+        logBuf = [];
+        box.insertBefore(frag, box.firstChild);
+        while (box.childElementCount > 200) box.removeChild(box.lastElementChild);
+      }
+
+      function render(t) {
+        $('count').textContent = frames;
+        $('fsm-state').textContent = t.state;
+        $('drone-state').textContent = DRONE_STATE[t.state] || t.state;
+
+        const hs = (t.hangar || '').toUpperCase();
+        set('hangar-state', hs, hs === 'ALARM' ? 'alarm' : hs === 'PREALARM' ? 'prealarm' : '');
+
+        const noEcho = t.distance == null || !isFinite(t.distance) || t.distance >= 999;
+        if (noEcho) set('distance', 'NO ECHO', 'muted');
+        else set('distance', t.distance.toFixed(1) + ' cm');
+
+        const tempFault = t.temperature == null || !isFinite(t.temperature) ||
+          t.temperature < -40 || t.temperature > 125;
+        if (tempFault) set('temperature', 'GUASTO', 'alarm');
+        else set('temperature', t.temperature.toFixed(1) + ' °C',
+          t.temperature >= TEMP2 ? 'alarm' : t.temperature >= TEMP1 ? 'prealarm' : '');
+
+        if (t.pir == null) set('pir', 'n/d', 'muted');
+        else set('pir', t.pir ? 'MOVIMENTO' : 'libero', t.pir ? 'prealarm' : 'muted');
+
+        const pre = hs === 'PREALARM' || t.prealarm === true;
+        const alm = hs === 'ALARM' || t.alarm === true;
+        set('prealarm', pre ? 'ATTIVO' : 'no', pre ? 'prealarm' : 'muted');
+        set('alarm', alm ? 'ATTIVO' : 'no', alm ? 'alarm' : 'muted');
+
+        $('btn-takeoff').disabled = t.state !== 'DRONE_INSIDE' || alm;
+        $('btn-land').disabled = t.state !== 'DRONE_OUTSIDE';
+        $('btn-reset').disabled = !alm;
+      }
+
+      socket.on('connect', () => $('conn').textContent = 'Server connesso, attendo hangar…');
+      socket.on('disconnect', () => $('conn').textContent = 'Server irraggiungibile');
+      socket.on('hangar:connected', () => $('conn').textContent = 'Hangar connesso');
+      socket.on('hangar:disconnected', () => {
+        $('conn').textContent = 'Hangar disconnesso';
+        lastFrameAt = 0;
+      });
+      socket.on('hangar:error', e => {
+        $('conn').textContent = 'Errore seriale: ' + e.error;
+        log('errore seriale: ' + e.error, true);
+      });
+
+      socket.on('hangar:telemetry', t => {
+        frames++;
+        lastFrameAt = Date.now();
+        pending = t;                     // conta solo l'ultimo stato
+        logBuf.push({ text: new Date().toLocaleTimeString('it-IT') + '  ' + JSON.stringify(t) });
+        schedule();
+      });
+
+      setInterval(() => {
+        if (!lastFrameAt) return;
+        const age = Date.now() - lastFrameAt;
+        $('age').textContent = age < 1000 ? age + ' ms' : (age / 1000).toFixed(1) + ' s fa';
+      }, 250);
+
+      $('btn-takeoff').onclick = () => { socket.emit('drone:takeoff'); log('» CMD:TAKEOFF'); };
+      $('btn-land').onclick = () => { socket.emit('drone:land'); log('» CMD:LAND'); };
+      $('btn-reset').onclick = () => { socket.emit('drone:reset'); log('» CMD:RESET'); };
+    })();
   </script>
 </body>
+
 </html>

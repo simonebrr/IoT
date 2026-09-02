@@ -15,8 +15,8 @@
 #define LED_GREEN D1
 #define LED_RED D2
 
-#define SAMPLE_INTERVAL 1000  // ms
-#define WIFI_TIMEOUT 20000    // ms
+#define SAMPLE_INTERVAL 1000
+#define WIFI_TIMEOUT 20000
 
 #define TANK_MAX_CM 30.0f
 #define L1 0.50f  // 50%
