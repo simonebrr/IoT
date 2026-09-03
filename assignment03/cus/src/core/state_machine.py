@@ -15,7 +15,6 @@ class StateMachine:
     self.T2 = t2
     self.tank_max_cm = tank_max_cm
 
-    # La modalita' di avvio del sistema e' AUTOMATIC (da specifica).
     self.mode = AUTOMATIC
     self._prev_mode = AUTOMATIC
     self.valve_percent = 0
@@ -25,9 +24,6 @@ class StateMachine:
     self.above_l1_since = None
     self.history = deque(maxlen=HISTORY_SIZE)
 
-    # Ultimi valori riportati dal WCS: servono per reagire solo quando il WCS
-    # cambia davvero (bottone/potenziometro), non a ogni report ripetuto, cosi'
-    # i comandi dalla dashboard non vengono sovrascritti dallo stream seriale.
     self._last_wcs_mode = None
     self._last_wcs_valve = None
 
@@ -85,8 +81,7 @@ class StateMachine:
       self.above_l1_since = None
 
   def toggle_mode(self):
-    # Richiesto dal bottone del WCS: alterna AUTOMATIC/MANUAL. Il CUS e'
-    # l'autorita' sulla modalita', quindi il WCS non cambia stato da solo.
+
     base = self.mode if self.mode != UNCONNECTED else self._prev_mode
     self.set_mode(MANUAL if base == AUTOMATIC else AUTOMATIC)
 
@@ -95,15 +90,11 @@ class StateMachine:
       self.valve_percent = max(0, min(100, int(percent)))
 
   def on_wcs_report(self, mode, valve_percent):
-    # Adotta la modalita' del WCS solo quando il WCS l'ha appena cambiata
-    # (fronte di salita), non a ogni report: altrimenti il flusso continuo di
-    # STATUS riporterebbe subito indietro un cambio fatto dalla dashboard.
+
     if self._last_wcs_mode is not None and mode != self._last_wcs_mode:
       self.set_mode(mode)
     self._last_wcs_mode = mode
 
-    # Stessa logica per la valvola in MANUAL: applica il valore del
-    # potenziometro solo quando cambia, cosi' lo slider della dashboard regge.
     if self.mode == MANUAL:
       try:
         valve = max(0, min(100, int(valve_percent)))

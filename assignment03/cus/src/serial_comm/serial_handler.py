@@ -5,8 +5,6 @@ from core.state_machine import StateMachine, AUTOMATIC, MANUAL
 
 WCS_MODE = {0: MANUAL, 1: AUTOMATIC}
 
-# Reinvia lo stato al WCS almeno ogni HEARTBEAT secondi anche se invariato,
-# cosi' un WCS appena avviato si allinea; altrimenti si invia solo sul cambio.
 HEARTBEAT = 1.0
 
 class SerialHandler:
@@ -47,8 +45,6 @@ class SerialHandler:
     if not changed and (now - self._last_send_time) < HEARTBEAT:
       return
 
-    # Un concetto per riga, formato "CHIAVE:VALORE": il WCS li interpreta
-    # entrambi e non dipende dall'ordine.
     self.send_command(f"MODE:{mode}")
     self.send_command(f"VALVE:{valve}")
     self._last_sent_mode = mode
@@ -68,7 +64,6 @@ class SerialHandler:
   def _parse(self, line: str):
     print(f"{line}")
     if line == "TOGGLE":
-      # Il bottone del WCS chiede di alternare la modalita'.
       self.state_machine.toggle_mode()
       self.send_state()
       return

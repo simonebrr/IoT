@@ -41,8 +41,7 @@ void ControlTask::execute() {
   }
   lastPressed = pressed;
 
-  // sempre, anche in AUTOMATIC: altrimenti gli scatti si accumulano
-  // e si applicherebbero tutti al primo ingresso in MANUAL
+  // annche in auto altrimenti quando va in manual li fa tutti insieme
   int delta = encoder->consumeDelta();
 
   if (currentMode == MODE_MANUAL && delta != 0) {

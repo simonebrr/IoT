@@ -14,7 +14,7 @@ async function updateStatus() {
     document.getElementById("level").innerHTML = fmt(data.level_percent);
     document.getElementById("valve").innerHTML = fmt(data.valve_percent);
 
-    // lo slider e' attivo solo in MANUAL; non lo aggiorno mentre l'utente trascina
+    // lo slider e' attivo solo in manual, non lo aggiorno mentre l'utente trascina
     const slider = document.getElementById("slider");
     const manual = data.mode === "MANUAL";
     slider.disabled = !manual;
