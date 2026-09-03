@@ -21,8 +21,11 @@ class ControlTask : public Task {
 
   int currentMode;
   int targetAngle;
+  int valvePercent;      // apertura logica corrente (0-100), sorgente di verita'
   int lastPotRaw;
   bool lastPressed;
+  int cusValvePercent;   // ultima apertura comandata dal CUS (0-100)
+  bool cusValveChanged;  // il CUS ha appena inviato un nuovo VALVE
 
  public:
   ControlTask(unsigned long interval, ServoMotor* servoMotor,
@@ -37,6 +40,7 @@ class ControlTask : public Task {
   int getTargetAngle() { return this->targetAngle; }
 
  private:
+  void processCommand(char* cmd);
   void handleManualMode();
   void handleAutomaticMode();
   void updateServo();

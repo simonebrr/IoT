@@ -9,7 +9,7 @@ class Task {
 
  public:
   Task(unsigned long inteval);
-  virtual ~Task();
+  virtual ~Task() = default;
 
   virtual void init() = 0;
   virtual void execute() = 0;

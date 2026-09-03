@@ -1,43 +1,34 @@
-#include "Protocols/SerialProtocol.h"
+#ifndef SERIAL_PROTOCOL_H
+#define SERIAL_PROTOCOL_H
 
-SerialProtocol::SerialProtocol() {
-  this->bufferIndex = 0;
-  this->msgReady = false;
-  memset(buffer, 0, BUFFER_SIZE);
-}
+#include <Arduino.h>
 
-void SerialProtocol::init() { Serial.begin(SERIAL_BAUD); }
+#include "../config.h"
 
-void SerialProtocol::update() {
-  while (Serial.available() > 0) {
-    char c = Serial.read();
+#define BUFFER_SIZE 64
 
-    if (c == '\n') {
-      buffer[bufferIndex] = '\0';
-      msgReady = true;
-      bufferIndex = 0;
-    } else if (bufferIndex < BUFFER_SIZE - 1) {
-      buffer[bufferIndex++] = c;
-    }
-  }
-}
+class SerialProtocol {
+ private:
+  char buffer[BUFFER_SIZE];
+  int bufferIndex;
+  bool msgReady;
 
-bool SerialProtocol::isMsgReady() { return this->msgReady; }
+ public:
+  SerialProtocol();
 
-char* SerialProtocol::getCmd() {
-  this->msgReady = false;
-  return this->buffer;
-}
+  void init();
+  void update();
+  bool isMsgReady();
+  char* getCmd();
 
-void SerialProtocol::sendStatus(int mode, int valvePercent) {
-  char payload[64];
-  snprintf(payload, sizeof(payload), "STATUS:%d:%d\n", mode, valvePercent);
-  Serial.print(payload);
-}
+  void sendResponse(const char* response);
+  void sendSensorData(int pot, bool button);
+  void sendStatus(int mode, int servoAngle);
+  void sendToggle();
 
-void SerialProtocol::sendSensorData(int potValue, bool btnPressed) {
-  char payload[64];
-  snprintf(payload, sizeof(payload), "SENSOR:%d:%d\n", potValue,
-           btnPressed ? 1 : 0);
-  Serial.print(payload);
-}
+ private:
+  void parseMessage();
+  void clsBuffer();
+};
+
+#endif

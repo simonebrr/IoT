@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from core.state_machine import StateMachine, AUTOMATIC, MANUAL
-from serial.serial_handler import SerialHandler
+from serial_comm.serial_handler import SerialHandler
 
 app = Flask(__name__)
 state_machine: StateMachine

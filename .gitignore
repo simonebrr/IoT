@@ -7,7 +7,6 @@ drone-hangar/.vscode/.browse.c_cpp.db*
 drone-hangar/.vscode/c_cpp_properties.json
 drone-hangar/.vscode/launch.json
 drone-hangar/.vscode/ipch/
-assignment02/doc/assignment02.mp4
 
 .pio/
 drone-hangar/.pio/
@@ -20,3 +19,6 @@ node_modules/
 
 *.log
 .DS_Store
+.venv
+__pycache__/
+*.pyc

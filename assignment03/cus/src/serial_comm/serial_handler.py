@@ -1,8 +1,13 @@
 import serial
 import threading
+import time
 from core.state_machine import StateMachine, AUTOMATIC, MANUAL
 
 WCS_MODE = {0: MANUAL, 1: AUTOMATIC}
+
+# Reinvia lo stato al WCS almeno ogni HEARTBEAT secondi anche se invariato,
+# cosi' un WCS appena avviato si allinea; altrimenti si invia solo sul cambio.
+HEARTBEAT = 1.0
 
 class SerialHandler:
   def __init__(self, state_machine: StateMachine, port: str, baud: int = 9600):
@@ -12,6 +17,9 @@ class SerialHandler:
     self.serial = None
     self.running = False
     self.thread = None
+    self._last_sent_mode = None
+    self._last_sent_valve = None
+    self._last_send_time = 0.0
 
   def start(self):
     self.serial = serial.Serial(self.port, self.baud, timeout=1)
@@ -33,10 +41,19 @@ class SerialHandler:
     state = self.state_machine.get_state()
     mode = state["mode"]
     valve = state["valve_percent"]
-    angle = int(valve * 90 / 100)
 
-    self.send_command(mode)
-    self.send_command(f"ANGLE:{angle}")
+    now = time.time()
+    changed = mode != self._last_sent_mode or valve != self._last_sent_valve
+    if not changed and (now - self._last_send_time) < HEARTBEAT:
+      return
+
+    # Un concetto per riga, formato "CHIAVE:VALORE": il WCS li interpreta
+    # entrambi e non dipende dall'ordine.
+    self.send_command(f"MODE:{mode}")
+    self.send_command(f"VALVE:{valve}")
+    self._last_sent_mode = mode
+    self._last_sent_valve = valve
+    self._last_send_time = now
 
 
   def _read_loop(self):
@@ -50,6 +67,11 @@ class SerialHandler:
 
   def _parse(self, line: str):
     print(f"{line}")
+    if line == "TOGGLE":
+      # Il bottone del WCS chiede di alternare la modalita'.
+      self.state_machine.toggle_mode()
+      self.send_state()
+      return
     if line.startswith("STATUS:"):
       parts = line.split(":")
       if len(parts) == 3:

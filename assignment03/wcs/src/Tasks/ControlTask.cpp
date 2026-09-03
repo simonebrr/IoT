@@ -1,19 +1,17 @@
 #include "Tasks/ControlTask.h"
 
 ControlTask::ControlTask(unsigned long interval, ServoMotor* servoMotor,
-                         Potentiometer* pot, Button* btn,
-                         SerialProtocol* serial, LcdDisplay* display)
-    : Task(interval) {
-  this->servo = servoMotor;
-  this->potentiometer = pot;
-  this->button = btn;
-  this->serialProtocol = serial;
-  this->lcd = display;
-  this->currentMode = MODE_AUTOMATIC;
-  this->targetAngle = SERVO_CLOSED;
-  this->lastPotRaw = 0;
-  this->lastPressed = false;
-}
+                         Encoder* enc, Button* btn, SerialProtocol* serial,
+                         LcdDisplay* display)
+    : Task(interval),
+      servo(servoMotor),
+      encoder(enc),
+      button(btn),
+      serialProtocol(serial),
+      lcd(display),
+      currentMode(MODE_AUTOMATIC),
+      valvePercent(0),
+      lastPressed(false) {}
 
 void ControlTask::init() {}
 
@@ -24,44 +22,34 @@ void ControlTask::execute() {
     char* colon = strchr(cmd, ':');
     if (colon != nullptr) {
       *colon = '\0';
-      targetAngle = atoi(colon + 1);
+      int remotePercent = atoi(colon + 1);
       if (strcmp(cmd, "AUTOMATIC") == 0) {
         currentMode = MODE_AUTOMATIC;
-
+        valvePercent = remotePercent;
       } else if (strcmp(cmd, "MANUAL") == 0) {
         currentMode = MODE_MANUAL;
+        valvePercent = remotePercent;
       } else if (strcmp(cmd, "UNCONNECTED") == 0) {
         currentMode = MODE_UNCONNECTED;
       }
     }
   }
 
-  // Prioritá bottone
   bool pressed = button->isPressed();
   if (pressed && !lastPressed) {
     currentMode = (currentMode == MODE_MANUAL) ? MODE_AUTOMATIC : MODE_MANUAL;
   }
   lastPressed = pressed;
 
-  if (currentMode == MODE_MANUAL) {
-    handleManualMode();
-  } else {
-    handleAutomaticMode();
+  // sempre, anche in AUTOMATIC: altrimenti gli scatti si accumulano
+  // e si applicherebbero tutti al primo ingresso in MANUAL
+  int delta = encoder->consumeDelta();
+
+  if (currentMode == MODE_MANUAL && delta != 0) {
+    valvePercent = constrain(valvePercent + delta * ENCODER_STEP, 0, 100);
   }
 
-  updateServo();
-  sendStatusUpdate();
-}
-void ControlTask::handleManualMode() {
-  targetAngle = potentiometer->mapToServoAngle();
-}
-
-void ControlTask::handleAutomaticMode() {}
-
-void ControlTask::updateServo() { servo->setAngle(targetAngle); }
-
-void ControlTask::sendStatusUpdate() {
-  int percent = map(targetAngle, SERVO_MIN_ANGLE, SERVO_MAX_ANGLE, 0, 100);
-  lcd->update(currentMode, percent);
-  serialProtocol->sendStatus(currentMode, percent);
+  servo->setAngle(map(valvePercent, 0, 100, SERVO_MIN_ANGLE, SERVO_MAX_ANGLE));
+  lcd->update(currentMode, valvePercent);
+  serialProtocol->sendStatus(currentMode, valvePercent);
 }

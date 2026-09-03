@@ -28,11 +28,12 @@ class MqttHandler:
       print(f"Failed: rc = {rc}")
 
   def _on_message(self, _, __, msg):
-    payload = msg.payload.decode("utf-8")
-    try:  
-      level = float(payload)
-      print(f"{level}")
-      self.state_machine.update_level(level)
+    payload = msg.payload.decode("utf-8").strip()
+    token = payload.split()[0] if payload.split() else ""
+    try:
+      level = float(token)
     except ValueError:
-      print(f"{payload}")
-
+      print(f"[MQTT] payload non valido: {payload!r}")
+      return
+    print(f"{level}")
+    self.state_machine.update_level(level)

@@ -5,18 +5,17 @@
 #define SERIAL_TIMEOUT 1000
 
 #define SERVO_PIN 9
-#define POTENTIOMETER_PIN A0
+#define ENCODER_CLK 3
+#define ENCODER_DT 4
+#define ENCODER_STEP 10
 #define BUTTON_PIN 2
-#define LCD_RS 12
-#define LCD_EN 11
-#define LCD_D4 10
-#define LCD_D5 8
-#define LCD_D6 7
-#define LCD_D7 6
+
+#define LCD_ADDR 0x27
+#define LCD_COLS 16
+#define LCD_ROWS 2
 
 #define CONTROL_INTERVAL 500
 #define BUTTON_DEBOUNCE 50
-#define POT_DEADBAND 15       // raw ADC counts: min movement to take over the valve
 
 #define SERVO_MIN_ANGLE 0
 #define SERVO_MAX_ANGLE 90

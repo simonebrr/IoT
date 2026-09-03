@@ -4,8 +4,8 @@ import os
 from dotenv import load_dotenv
 from core.state_machine import StateMachine
 from mqtt.mqtt_handler import MqttHandler
-from serial.serial_handler import SerialHandler
-import http.http_server as http_server
+from serial_comm.serial_handler import SerialHandler
+import http_api.http_server as http_server
 
 load_dotenv()
 

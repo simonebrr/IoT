@@ -1,6 +1,7 @@
 #include "Actuators/LcdDisplay.h"
 
-LcdDisplay::LcdDisplay() : lcd(0x27, 16, 2) {
+LcdDisplay::LcdDisplay()
+    : lcd(LCD_ADDR, LCD_COLS, LCD_ROWS), lastMode(-1), lastPercent(-1) {
   this->lastMode = -1;
   this->lastPercent = -1;
 }
@@ -15,19 +16,17 @@ void LcdDisplay::init() {
 
 void LcdDisplay::update(int mode, int valPercent) {
   if (mode == lastMode && valPercent == lastPercent) return;
-
   lastMode = mode;
   lastPercent = valPercent;
 
-  lcd.clear();
+  char line[17];
+  snprintf(line, sizeof(line), "Mode: %-10s", modeName(mode));
   lcd.setCursor(0, 0);
-  lcd.print("Mode: ");
-  lcd.print(modeName(mode));
+  lcd.print(line);
 
+  snprintf(line, sizeof(line), "Valve: %3d%%    ", valPercent);
   lcd.setCursor(0, 1);
-  lcd.print("Valve: ");
-  lcd.print(valPercent);
-  lcd.print("%");
+  lcd.print(line);
 }
 
 const char* LcdDisplay::modeName(int mode) {

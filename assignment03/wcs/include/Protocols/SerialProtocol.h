@@ -24,6 +24,7 @@ class SerialProtocol {
   void sendResponse(const char* response);
   void sendSensorData(int pot, bool button);
   void sendStatus(int mode, int servoAngle);
+  void sendToggle();
 
  private:
   void parseMessage();
